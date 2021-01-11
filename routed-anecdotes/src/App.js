@@ -1,5 +1,14 @@
 import React, { useState } from 'react'
-import { BrowserRouter as Router, Switch, Link, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Link,
+  Route,
+  useHistory,
+} from 'react-router-dom'
+import Anecdote from './components/Anecdote'
+import AnecdoteList from './components/AnecdoteList'
+import Notification from './components/Notification'
 
 const Menu = () => {
   const padding = {
@@ -19,17 +28,6 @@ const Menu = () => {
     </div>
   )
 }
-
-const AnecdoteList = ({ anecdotes }) => (
-  <div>
-    <h2>Anecdotes</h2>
-    <ul>
-      {anecdotes.map((anecdote) => (
-        <li key={anecdote.id}>{anecdote.content}</li>
-      ))}
-    </ul>
-  </div>
-)
 
 const About = () => (
   <div>
@@ -68,6 +66,7 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
+  const history = useHistory()
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
@@ -80,6 +79,8 @@ const CreateNew = (props) => {
       info,
       votes: 0,
     })
+    props.sendNotification(`a new anecdote '${content}' has been created !`)
+    history.push('/')
   }
 
   return (
@@ -136,6 +137,11 @@ const App = () => {
 
   const [notification, setNotification] = useState('')
 
+  const sendNotification = (message) => {
+    setNotification(message)
+    setTimeout(() => setNotification(''), 10000)
+  }
+
   const addNew = (anecdote) => {
     anecdote.id = (Math.random() * 10000).toFixed(0)
     setAnecdotes(anecdotes.concat(anecdote))
@@ -159,12 +165,16 @@ const App = () => {
       <div>
         <h1>Software anecdotes</h1>
         <Menu />
+        <Notification message={notification} />
         <Switch>
+          <Route path="/anecdotes/:id">
+            <Anecdote anecdotes={anecdotes} />
+          </Route>
           <Route path="/about">
             <About />
           </Route>
           <Route path="/create">
-            <CreateNew addNew={addNew} />
+            <CreateNew addNew={addNew} sendNotification={sendNotification} />
           </Route>
           <Route path="/">
             <AnecdoteList anecdotes={anecdotes} />
