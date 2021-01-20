@@ -75,18 +75,26 @@ const CreateNew = (props) => {
 
   const content = useField('text')
   const author = useField('text')
-  const info = useField('url')
+  const info = useField('text')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.params.value,
+      author: author.params.value,
+      info: info.params.value,
       votes: 0,
     })
-    props.sendNotification(`a new anecdote '${content}' has been created !`)
+    props.sendNotification(
+      `a new anecdote '${content.params.value}' has been created !`
+    )
     history.push('/')
+  }
+
+  const handleReset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -95,17 +103,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...content} />
+          <input {...content.params} />
         </div>
         <div>
           author
-          <input {...author} />
+          <input {...author.params} />
         </div>
         <div>
           url for more info
-          <input {...info} />
+          <input {...info.params} />
         </div>
-        <input type="submit" value="create" />
+        <input type="reset" value="Reset" onClick={handleReset} />
+        <input type="submit" value="Create" />
       </form>
     </div>
   )
